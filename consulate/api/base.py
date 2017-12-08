@@ -64,10 +64,10 @@ class Endpoint(object):
         http_error_msg = ''
 
         if 400 <= response.status_code < 500:
-            http_error_msg = '%s Client Error' % response.status_code
+            http_error_msg = '%s Client Error: %s' % (response.status_code, response.body)
 
         elif 500 <= response.status_code < 600:
-            http_error_msg = '%s Server Error' % response.status_code
+            http_error_msg = '%s Server Error: %s' % (response.status_code, response.body)
 
         if http_error_msg:
             raise exceptions.ServerError(http_error_msg)
