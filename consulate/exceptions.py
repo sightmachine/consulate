@@ -8,6 +8,9 @@ class ConsulateException(Exception):
     """Base Consul exception"""
     pass
 
+class ServerError(ConsulateException):
+    """Raised when unhandled http 4xx or 5xx errors occur"""
+    pass
 
 class ACLDisabled(ConsulateException):
     """Raised when ACL related calls are made while ACLs are disabled"""

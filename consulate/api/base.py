@@ -5,7 +5,6 @@ Base Endpoint class used by all endpoint classes
 import base64
 import json
 
-from requests import HTTPError
 
 try:
     from urllib.parse import urlencode  # Python 3
@@ -54,10 +53,13 @@ class Endpoint(object):
                                         urlencode(query_params))
         return '{0}/{1}'.format(self._base_uri, path)
 
-    # copied from requests.Request raise_for_status method
     @staticmethod
     def _default_raise_error_status(response):
-        """Raises stored :class:`HTTPError`, if one occurred."""
+        """
+        (copied from requests.Request raise_for_status method)
+
+        Raises stored :class:`ServerError`, if one occurred.
+        """
 
         http_error_msg = ''
 
@@ -68,7 +70,7 @@ class Endpoint(object):
             http_error_msg = '%s Server Error' % response.status_code
 
         if http_error_msg:
-            raise HTTPError(http_error_msg)
+            raise exceptions.ServerError(http_error_msg)
 
     def _get(self, params, query_params=None, raise_on_404=False):
         """Perform a GET request
