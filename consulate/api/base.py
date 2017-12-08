@@ -4,6 +4,9 @@ Base Endpoint class used by all endpoint classes
 """
 import base64
 import json
+
+from requests import HTTPError
+
 try:
     from urllib.parse import urlencode  # Python 3
 except ImportError:  # pragma: no cover
@@ -51,6 +54,22 @@ class Endpoint(object):
                                         urlencode(query_params))
         return '{0}/{1}'.format(self._base_uri, path)
 
+    # copied from requests.Request raise_for_status method
+    @staticmethod
+    def _default_raise_error_status(response):
+        """Raises stored :class:`HTTPError`, if one occurred."""
+
+        http_error_msg = ''
+
+        if 400 <= response.status_code < 500:
+            http_error_msg = '%s Client Error' % response.status_code
+
+        elif 500 <= response.status_code < 600:
+            http_error_msg = '%s Server Error' % response.status_code
+
+        if http_error_msg:
+            raise HTTPError(http_error_msg)
+
     def _get(self, params, query_params=None, raise_on_404=False):
         """Perform a GET request
 
@@ -65,8 +84,14 @@ class Endpoint(object):
             raise exceptions.ACLDisabled(response.body)
         elif response.status_code == 403:
             raise exceptions.Forbidden(response.body)
-        elif response.status_code == 404 and raise_on_404:
-            raise exceptions.NotFound(response.body)
+        elif response.status_code == 404:
+            if raise_on_404:
+                raise exceptions.NotFound(response.body)
+            else:
+                return
+        else:
+            self._default_raise_error_status(response)
+
         return []
 
     def _get_list(self, params, query_params=None):
