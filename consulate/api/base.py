@@ -88,7 +88,7 @@ class Endpoint(object):
             if raise_on_404:
                 raise exceptions.NotFound(response.body)
             else:
-                return
+                return []
         else:
             self._default_raise_error_status(response)
 
